@@ -1,7 +1,7 @@
 import { database, authentication } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import {
-    collection, addDoc, onSnapshot, query, orderBy,
+    collection, addDoc, onSnapshot, query, where, orderBy,
     serverTimestamp, doc, setDoc, getDocs, getDoc, updateDoc
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
@@ -61,20 +61,25 @@ async function autoOpenFromUrl() {
 }
 
 function loadConversations() {
-    onSnapshot(collection(database, "conversations"), snapshot => {
-        const mine = snapshot.docs.filter(d => d.data().participants?.includes(ME.uid));
+    // Query only conversations where the logged-in user is a participant
+    const q = query(
+        collection(database, "conversations"),
+        where("participants", "array-contains", ME.uid)
+    );
+
+    onSnapshot(q, snapshot => {
         convList.innerHTML = "";
-        if (mine.length === 0) {
+        if (snapshot.empty) {
             convList.innerHTML = `<li style="padding:1rem 1.4rem;color:var(--text-prompt);font-size:0.85rem;">No conversations yet.</li>`;
             return;
         }
-        mine.forEach(d => {
+        snapshot.docs.forEach(d => {
             const data      = d.data();
             const otherId   = data.participants.find(id => id !== ME.uid);
             const otherName = data.names?.[otherId] ?? "Unknown";
-            const li = document.createElement("li");
-            li.className = "conv-item" + (d.id === activeConvId ? " active" : "");
-            li.innerHTML = `
+            const li        = document.createElement("li");
+            li.className    = "conv-item" + (d.id === activeConvId ? " active" : "");
+            li.innerHTML    = `
                 <div class="conv-avatar">${initials(otherName)}</div>
                 <div class="conv-text">
                     <div class="conv-name">${otherName}</div>

@@ -10,166 +10,170 @@
 
 <body>
 
-<nav id="top-nav">
-    <div class="nav-logo">Smart Campus</div>
-    <div class="nav-actions">
-        <button class="btn-ghost" onclick="window.location.href='login.html#login'">Log in</button>
-        <button class="btn-primary" onclick="window.location.href='login.html#signup'">Sign up free</button>
-    </div>
-</nav>
+    <nav id="top-nav">
+        <div id="brand">Smart Campus</div>
+        <div class="nav-actions">
+            <button class="btn-ghost" onclick="window.location.href='login.html#login'">Log In</button>
+            <button class="btn-primary" onclick="window.location.href='login.html#signup'">Sign Up</button>
+        </div>
+    </nav>
 
     <main id="index-main">
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="hero-eyebrow reveal reveal-2">
-            <span class="live-dot"></span>
-            Your campus marketplace
-        </div>
-        <h1 class="reveal reveal-2">
-            One student's trash is<br>
-            <span class="accent">another's treasure.</span>
-        </h1>
-        <p class="reveal reveal-3">BUY, SELL & TRADE with other students. SMART CAMPUS.</p>
-        <div class="hero-cta reveal reveal-4">
-            <button class="btn-hero" onclick="window.location.href='login.html#signup'">Get started free</button>
-        </div>
+        <section class="hero">
+            <div class="hero-eyebrow reveal reveal-2">
+                <span class="live-dot"></span>
+                Your campus marketplace
+            </div>
+            <h1 class="reveal reveal-2">
+                One student's trash is<br>
+                <span class="accent">another's treasure.</span>
+            </h1>
+            <p class="reveal reveal-3">BUY, SELL & TRADE with other students.</p>
+            <div class="hero-cta reveal reveal-4">
+                <button class="start-btn" onclick="window.location.href='login.html#signup'">Get started</button>
+            </div>
 
-        <!-- CAROUSEL -->
-    <p class="section-label reveal reveal-5">What do you want to do?</p>
+            <!-- CAROUSEL -->
+            <p class="section-label reveal reveal-5">What do you want to do?</p>
 
-    <div class="carousel-wrap reveal reveal-5">
-        <div class="carousel-track-wrap">
-            <div class="carousel-track" id="carousel">
+            <div class="carousel-wrap reveal reveal-5">
+                <div class="carousel-track-wrap">
+                    <div class="carousel-track" id="carousel">
 
-                <a class="carousel-card" href="home.html?category=used" style="--card-bg:#EEF2FF">
-                    <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80')">
-                        <div class="card-chip" style="background:#4f46e5">Buy</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">Second-hand finds</div>
-                        <div class="card-sub">Textbooks, electronics &amp; more — cheap.</div>
-                    </div>
-                </a>
+                        <a class="carousel-card" href="home.html?category=used" style="--card-bg:#FFFBEB">
+                            <div class="card-img"
+                                style="background-image:url('https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=500&q=80')">
+                                <div class="card-chip" style="background:#f59e0b">Buy</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">Second-hand finds</div>
+                                <div class="card-sub">Textbooks, electronics &amp; more — cheap.</div>
+                            </div>
+                        </a>
 
-                <a class="carousel-card" href="sell.html" style="--card-bg:#F0FDF4">
-                    <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&q=80')">
-                        <div class="card-chip" style="background:#16a34a">Sell</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">List in 60 seconds</div>
-                        <div class="card-sub">Snap a photo, set a price, go live.</div>
-                    </div>
-                </a>
+                        <a class="carousel-card" href="sell.html" style="--card-bg:#EEF2FF">
+                            <div class="card-img"
+                                style="background-image:url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&q=80')">
+                                <div class="card-chip" style="background:#4f46e5">Sell</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">List in 60 seconds</div>
+                                <div class="card-sub">Snap a photo, set a price, go live.</div>
+                            </div>
+                        </a>
 
-                <a class="carousel-card" href="home.html?category=rent" style="--card-bg:#F0FFFE">
-                    <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=500&q=80')">
-                        <div class="card-chip" style="background:#5dc9a5">Rent</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">Borrow, don't buy</div>
-                        <div class="card-sub">Rent by the day, week, or month.</div>
-                    </div>
-                </a>
+                        <a class="carousel-card" href="home.html?category=rent" style="--card-bg:#ECFDF9">
+                            <div class="card-img"
+                                style="background-image:url('https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=500&q=80')">
+                                <div class="card-chip" style="background:#5dc9a5">Rent</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">Borrow, don't buy</div>
+                                <div class="card-sub">Rent by the day, week, or month.</div>
+                            </div>
+                        </a>
 
-                <a class="carousel-card" href="home.html?category=exchange" style="--card-bg:#FFF7ED">
-                    <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=500&q=80')">
-                        <div class="card-chip" style="background:#ea580c">Trade</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">Trade what you have</div>
-                        <div class="card-sub">Exchange directly — no money needed.</div>
-                    </div>
-                </a>
+                        <a class="carousel-card" href="home.html?category=exchange" style="--card-bg:#FDF2F8">
+                            <div class="card-img"
+                                style="background-image:url('https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=500&q=80')">
+                                <div class="card-chip" style="background:#ec4899">Trade</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">Trade what you have</div>
+                                <div class="card-sub">Exchange directly — no money needed.</div>
+                            </div>
+                        </a>
 
-                <a class="carousel-card" href="chat.html" style="--card-bg:#F0F9FF">
-                    <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=80')">
-                        <div class="card-chip" style="background:#0ea5e9">Chat</div>
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">Message sellers</div>
-                        <div class="card-sub">Negotiate and arrange meetups live.</div>
-                    </div>
-                </a>
+                        <a class="carousel-card" href="chat.html" style="--card-bg:#F8FAFC">
+                            <div class="card-img"
+                                style="background-image:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&q=80')">
+                                <div class="card-chip" style="background:#475569">Chat</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="card-title">Message sellers</div>
+                                <div class="card-sub">Negotiate and arrange meetups live.</div>
+                            </div>
+                        </a>
 
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- STATS -->
+        <div class="stats-strip reveal reveal-5">
+            <div class="stat-card">
+                <span class="stat-num" id="stat-students">—</span>
+                <span class="stat-label">Students</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num" id="stat-listings">—</span>
+                <span class="stat-label">Listings</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-num">Free</span>
+                <span class="stat-label">Always</span>
             </div>
         </div>
-    </div>
 
-    </section>
 
-    <!-- STATS -->
-    <div class="stats-strip reveal reveal-5">
-        <div class="stat-card">
-            <span class="stat-num" id="stat-students">—</span>
-            <span class="stat-label">Students</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-num" id="stat-listings">—</span>
-            <span class="stat-label">Listings</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-num">Free</span>
-            <span class="stat-label">Always</span>
-        </div>
-    </div>
 
-    
+        <!-- HOW IT WORKS -->
+        <p class="section-label reveal reveal-5">How it works</p>
 
-    <!-- HOW IT WORKS -->
-    <p class="section-label reveal reveal-5">How it works</p>
-
-    <div class="how-card reveal reveal-5">
-        <div class="how-header">Up and running in minutes</div>
-        <div class="how-row">
-            <div class="how-num">01</div>
-            <div>
-                <div class="how-title">Create your account</div>
-                <div class="how-sub">Sign up with your school email. Free, always.</div>
+        <div class="how-card reveal reveal-5">
+            <div class="how-header">Up and running in minutes</div>
+            <div class="how-row">
+                <div class="how-num">01</div>
+                <div>
+                    <div class="how-title">Create your account</div>
+                    <div class="how-sub">Sign up with your school email. Free, always.</div>
+                </div>
+            </div>
+            <div class="how-row">
+                <div class="how-num">02</div>
+                <div>
+                    <div class="how-title">Browse or list</div>
+                    <div class="how-sub">Find what you need or post what you have in under a minute.</div>
+                </div>
+            </div>
+            <div class="how-row">
+                <div class="how-num">03</div>
+                <div>
+                    <div class="how-title">Meet on campus &amp; exchange</div>
+                    <div class="how-sub">Pay in-app and scan a QR code at handoff. Done.</div>
+                </div>
             </div>
         </div>
-        <div class="how-row">
-            <div class="how-num">02</div>
-            <div>
-                <div class="how-title">Browse or list</div>
-                <div class="how-sub">Find what you need or post what you have in under a minute.</div>
-            </div>
-        </div>
-        <div class="how-row">
-            <div class="how-num">03</div>
-            <div>
-                <div class="how-title">Meet on campus &amp; exchange</div>
-                <div class="how-sub">Pay in-app and scan a QR code at handoff. Done.</div>
-            </div>
-        </div>
-    </div>
 
     </main>
 
-<nav class="bottom-nav">
-    <div class="bottom-nav-items">
-        <a class="nav-item active" href="index.html">
-            <span class="nav-item-icon">🏠</span>
-            <span class="nav-item-label">Home</span>
-        </a>
-        <a class="nav-item" href="home.html">
-            <span class="nav-item-icon">🔍</span>
-            <span class="nav-item-label">Browse</span>
-        </a>
-        <a class="nav-item" href="sell.html">
-            <span class="nav-item-icon">➕</span>
-            <span class="nav-item-label">Sell</span>
-        </a>
-        <a class="nav-item" href="chat.html">
-            <span class="nav-item-icon">💬</span>
-            <span class="nav-item-label">Messages</span>
-        </a>
-        <a class="nav-item" href="profile.html">
-            <span class="nav-item-icon">👤</span>
-            <span class="nav-item-label">Profile</span>
-        </a>
-    </div>
-</nav>
+    <nav class="bottom-nav">
+        <div class="bottom-nav-items">
+            <a class="nav-item active" href="index.html">
+                <span class="nav-item-icon">🏠</span>
+                <span class="nav-item-label">Home</span>
+            </a>
+            <a class="nav-item" href="home.html">
+                <span class="nav-item-icon">🔍</span>
+                <span class="nav-item-label">Browse</span>
+            </a>
+            <a class="nav-item" href="sell.html">
+                <span class="nav-item-icon">➕</span>
+                <span class="nav-item-label">Sell</span>
+            </a>
+            <a class="nav-item" href="chat.html">
+                <span class="nav-item-icon">💬</span>
+                <span class="nav-item-label">Messages</span>
+            </a>
+            <a class="nav-item" href="profile.html">
+                <span class="nav-item-icon">👤</span>
+                <span class="nav-item-label">Profile</span>
+            </a>
+        </div>
+    </nav>
 
     <script type="module" src="index.js"></script>
 </body>

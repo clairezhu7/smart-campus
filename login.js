@@ -1,12 +1,15 @@
 import { authentication, database } from "./firebase-config.js";
 import {
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithCredential
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const signUpCard      = document.getElementById("sign-up");
 const loginCard       = document.getElementById("login");
+const completeProfileCard = document.getElementById("complete-profile");
 const toLoginBtn      = document.getElementById("to-login-btn");
 const toSignUpBtn     = document.getElementById("to-sign-up-btn");
 const googleSignUp    = document.getElementById("google-sign-up");
@@ -25,6 +28,12 @@ const schoolsList     = document.getElementById("schools-list");
 
 const loginEmail      = document.getElementById("login-email");
 const loginPassword   = document.getElementById("login-password");
+
+const completeProfileForm     = document.getElementById("complete-profile-form");
+const completeProfileGreeting = document.getElementById("complete-profile-greeting");
+const completeProfileSchool   = document.getElementById("complete-profile-school");
+const completeProfileList     = document.getElementById("complete-profile-schools-list");
+const completeProfileBtn      = document.getElementById("complete-profile-btn");
 
 // ── Toast ─────────────────────────────────────────────────
 const toastEl   = document.getElementById("toast");
@@ -48,6 +57,7 @@ window.addEventListener("hashchange", handleHashChange);
 function handleHashChange() {
     loginCard.classList.add("hidden");
     signUpCard.classList.add("hidden");
+    completeProfileCard.classList.add("hidden");
 
     const hash = window.location.hash;
     if (hash === "#signup") {
@@ -206,6 +216,80 @@ function filterSchools(value) {
 
 loadOntarioSchools();
 
+// ── Google sign-in: complete-profile card ─────────────────
+let pendingGoogleUser = null; // { uid, name, email }
+
+function showCompleteProfile({ uid, name, email }) {
+    pendingGoogleUser = { uid, name, email };
+    completeProfileGreeting.textContent = name || email
+        ? `Hey ${name || email} — just need your school to finish setting up your account.`
+        : "Just need your school to finish setting up your account.";
+    completeProfileSchool.value = "";
+    completeProfileList.classList.add("hidden");
+
+    loginCard.classList.add("hidden");
+    signUpCard.classList.add("hidden");
+    completeProfileCard.classList.remove("hidden");
+    completeProfileSchool.focus();
+}
+
+completeProfileSchool.addEventListener("focus", () => {
+    completeProfileList.classList.remove("hidden");
+    filterCompleteProfileSchools(completeProfileSchool.value);
+});
+
+completeProfileSchool.addEventListener("input", () => filterCompleteProfileSchools(completeProfileSchool.value));
+
+completeProfileSchool.addEventListener("blur", () => {
+    setTimeout(() => completeProfileList.classList.add("hidden"), 200);
+});
+
+function filterCompleteProfileSchools(value) {
+    const q = value.toLowerCase().trim();
+    const matches = allSchools.filter(s => s.toLowerCase().includes(q)).slice(0, 20);
+    completeProfileList.innerHTML = matches.map(name => {
+        const div = document.createElement("div");
+        div.className = "school-option";
+        div.textContent = name;
+        return div.outerHTML;
+    }).join("");
+
+    completeProfileList.querySelectorAll(".school-option").forEach((el, i) => {
+        el.addEventListener("mousedown", () => {
+            completeProfileSchool.value = matches[i];
+            completeProfileList.classList.add("hidden");
+        });
+    });
+}
+
+completeProfileForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!pendingGoogleUser) return;
+
+    const school = completeProfileSchool.value.trim();
+    if (!school) {
+        showToast("Please select your school.", "error");
+        return;
+    }
+
+    setLoading(completeProfileBtn, true, "Saving…");
+
+    try {
+        await setDoc(doc(database, "users", pendingGoogleUser.uid), {
+            name: pendingGoogleUser.name,
+            email: pendingGoogleUser.email,
+            school,
+            dateCreated: new Date().toISOString()
+        });
+        showToast("Account created! Welcome to Smart Campus 🎉");
+        setTimeout(() => window.location.href = "home.html", 1000);
+    } catch (err) {
+        console.error("Couldn't save profile:", err);
+        setLoading(completeProfileBtn, false, "Continue");
+        showToast("Something went wrong. Please try again.", "error");
+    }
+});
+
 // ── Loading state helper ──────────────────────────────────
 function setLoading(btn, loading, label) {
     btn.disabled = loading;
@@ -215,7 +299,7 @@ function setLoading(btn, loading, label) {
 // ── Google Sign-In ────────────────────────────────────────
 window.initGoogle = function () {
     google.accounts.id.initialize({
-        client_id: "146597308769-s4apsm6nbec00892sb4l5v29mks1voj5.apps.googleusercontent.com",
+        client_id: "199267957188-n80vs33jfckqmedocojl71sk5tk8m6ud.apps.googleusercontent.com",
         callback: handleGoogleCredential,
         auto_prompt: false
     });
@@ -243,10 +327,42 @@ function renderGoogleButtons() {
     });
 }
 
-function handleGoogleCredential(response) {
-    const profile = decodeJWT(response.credential);
-    console.log("Google sign-in:", profile.name, profile.email);
-    // TODO: wire up Firestore user creation for Google accounts
+async function handleGoogleCredential(response) {
+    let profile;
+    try {
+        profile = decodeJWT(response.credential);
+    } catch (err) {
+        console.error("Couldn't decode Google credential:", err);
+        showToast("Google sign-in failed. Please try again.", "error");
+        return;
+    }
+
+    try {
+        const credential = GoogleAuthProvider.credential(response.credential);
+        const result = await signInWithCredential(authentication, credential);
+        const user = result.user;
+
+        const userDocRef = doc(database, "users", user.uid);
+        const snap = await getDoc(userDocRef);
+
+        if (snap.exists()) {
+            // Returning user — profile already complete.
+            showToast("Logged in successfully!");
+            setTimeout(() => window.location.href = "home.html", 600);
+            return;
+        }
+
+        // First time signing in with Google. Name + email come from the
+        // credential — school is the only thing left to collect.
+        showCompleteProfile({
+            uid: user.uid,
+            name: profile.name ?? user.displayName ?? "",
+            email: profile.email ?? user.email ?? ""
+        });
+    } catch (err) {
+        console.error("Google sign-in failed:", err);
+        showToast("Google sign-in failed. Please try again.", "error");
+    }
 }
 
 function decodeJWT(token) {

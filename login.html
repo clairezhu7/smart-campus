@@ -13,7 +13,7 @@
 
     <!-- Shared top bar -->
     <header id="auth-topbar">
-        <a href="index.html" id="auth-brand">Smart Campus</a>
+        <a href="index.html" id="brand">Smart Campus</a>
     </header>
 
     <div id="auth-stage">
@@ -98,6 +98,23 @@
 
             <div class="auth-divider">or</div>
             <div id="google-login" class="google-btn"></div>
+        </div>
+
+        <!-- ── Complete profile (Google sign-in) card ── -->
+        <div class="auth-card hidden" id="complete-profile">
+            <h1>One last step</h1>
+            <p id="complete-profile-greeting">Just need your school to finish setting up your account.</p>
+
+            <form id="complete-profile-form" class="auth-form" novalidate>
+
+                <div class="input-wrap" style="position:relative;">
+                    <input type="text" id="complete-profile-school" placeholder=" " autocomplete="off" required>
+                    <label for="complete-profile-school">School</label>
+                    <div id="complete-profile-schools-list" class="hidden"></div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="complete-profile-btn">Continue</button>
+            </form>
         </div>
 
     </div>

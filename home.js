@@ -3,7 +3,7 @@ import {
     onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import {
-    collection, query, orderBy, onSnapshot,
+    collection, query, where, orderBy, onSnapshot,
     addDoc, serverTimestamp, doc, getDoc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
@@ -74,12 +74,27 @@ onAuthStateChanged(authentication, async user => {
         school: data.school ?? ""
     };
 
+    if (!ME.school) {
+        grid.innerHTML = `
+            <div id="empty-state">
+                <div class="emoji">🏫</div>
+                <div class="msg">We don't have a school on file for your account...</div>
+                <div class="sub">Add your school to your profile to access the marketplace!</div>
+            </div>
+        `;
+        return;
+    }
+
     loadListings();
 });
 
 // ── Listings live query ──────────────────────────────────
 function loadListings() {
-    const q = query(collection(database, "listings"), orderBy("postedAt", "desc"));
+    const q = query(
+        collection(database, "listings"),
+        where("sellerSchool", "==", ME.school),
+        orderBy("postedAt", "desc")
+    );
 
     onSnapshot(q, snapshot => {
         allListings = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));

@@ -1,27 +1,36 @@
 :root {
-    --primary-color:    #4f46e5;
+    --primary-color: #4f46e5;
     --background-color: #f8fafc;
-    --border-color:     #e2e8f0;
-    --border-focus:     #5dc9a5;
-    --text-main:        #1e293b;
-    --text-accent:      #5dc9a5;
-    --text-prompt:      #727f91;
-    --border-radius:    1rem;
+    --border-color: #e2e8f0;
+    --border-focus: #5dc9a5;
+    --text-main: #1e293b;
+    --text-accent: #5dc9a5;
+    --text-prompt: #727f91;
+    --border-radius: 1rem;
 }
 
 /* ── Reset ───────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    overflow-x: hidden;
     background-color: var(--background-color);
+    background-image: radial-gradient(circle, rgba(79, 70, 229, 0.14) 1px, transparent 1px);
+    background-size: 24px 24px;
     color: var(--text-main);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-tap-highlight-color: transparent;
     -webkit-user-select: none;
     user-select: none;
+
 }
 
 /* ── Page shell ──────────────────────────────────────────── */
@@ -36,7 +45,7 @@ body {
     display: flex;
     align-items: center;
     padding: 1rem 1.5rem;
-    background: rgba(255,255,255,0.85);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: saturate(180%) blur(12px);
     -webkit-backdrop-filter: saturate(180%) blur(12px);
     border-bottom: 1px solid var(--border-color);
@@ -45,14 +54,14 @@ body {
     z-index: 50;
 }
 
-#auth-brand {
-    font-weight: 700;
-    font-size: 1.4rem;
+#brand {
+    font-weight: 700; 
+    font-size: 1.8rem;
+    text-decoration: none;
     background: linear-gradient(135deg, var(--primary-color), var(--text-accent));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    text-decoration: none;
     user-select: none;
 }
 
@@ -73,7 +82,7 @@ body {
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 2.5rem 2rem;
-    box-shadow: 0 10px 40px -8px rgba(0,0,0,0.08);
+    box-shadow: 0 10px 40px -8px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -87,7 +96,7 @@ body {
     line-height: 1.2;
 }
 
-.auth-card > p {
+.auth-card>p {
     margin: -0.75rem 0 0;
     font-size: 1.3rem;
     color: var(--text-prompt);
@@ -148,8 +157,8 @@ body {
     background: transparent;
 }
 
-.input-wrap input:focus ~ label,
-.input-wrap input:not(:placeholder-shown) ~ label {
+.input-wrap input:focus~label,
+.input-wrap input:not(:placeholder-shown)~label {
     top: 0.55rem;
     transform: none;
     font-size: 0.7rem;
@@ -180,12 +189,17 @@ body {
     transition: color 0.15s ease;
 }
 
-.pwd-toggle:hover { color: var(--primary-color); }
+.pwd-toggle:hover {
+    color: var(--primary-color);
+}
 
 /* Kill browser-native pw icons */
 input[type="password"]::-webkit-credentials-auto-fill-button,
 input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear { display: none; visibility: hidden; }
+input[type="password"]::-ms-clear {
+    display: none;
+    visibility: hidden;
+}
 
 /* Autocomplete dropdown for schools */
 #schools-list {
@@ -196,17 +210,30 @@ input[type="password"]::-ms-clear { display: none; visibility: hidden; }
     background: #fff;
     border: 1px solid var(--border-color);
     border-radius: 0.75rem;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     max-height: 200px;
     overflow-y: auto;
     overflow-x: hidden;
     z-index: 100;
 }
 
-#schools-list::-webkit-scrollbar { width: 0.35rem; }
-#schools-list::-webkit-scrollbar-track { background: transparent; margin: 0.4rem 0; }
-#schools-list::-webkit-scrollbar-thumb { background: var(--text-prompt); border-radius: 999px; }
-#schools-list::-webkit-scrollbar-thumb:hover { background: var(--primary-color); }
+#schools-list::-webkit-scrollbar {
+    width: 0.35rem;
+}
+
+#schools-list::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0.4rem 0;
+}
+
+#schools-list::-webkit-scrollbar-thumb {
+    background: var(--text-prompt);
+    border-radius: 999px;
+}
+
+#schools-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
 
 .school-option {
     padding: 0.65rem 1rem;
@@ -216,7 +243,43 @@ input[type="password"]::-ms-clear { display: none; visibility: hidden; }
     transition: background 0.1s ease;
 }
 
-.school-option:hover { background: var(--background-color); }
+.school-option:hover {
+    background: var(--background-color);
+}
+
+/* Same dropdown treatment for the Google-flow school field */
+#complete-profile-schools-list {
+    position: absolute;
+    top: calc(100% + 0.3rem);
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 100;
+}
+
+#complete-profile-schools-list::-webkit-scrollbar {
+    width: 0.35rem;
+}
+
+#complete-profile-schools-list::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 0.4rem 0;
+}
+
+#complete-profile-schools-list::-webkit-scrollbar-thumb {
+    background: var(--text-prompt);
+    border-radius: 999px;
+}
+
+#complete-profile-schools-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
 
 /* Forgot password link row */
 .forgot-row {
@@ -237,7 +300,7 @@ input[type="password"]::-ms-clear { display: none; visibility: hidden; }
     font-weight: 600;
     font-family: inherit;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(79,70,229,0.25);
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
     transition: filter 0.2s ease, transform 0.15s ease;
     margin-top: 0.25rem;
 }
@@ -247,7 +310,9 @@ input[type="password"]::-ms-clear { display: none; visibility: hidden; }
     transform: translateY(-1px);
 }
 
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active {
+    transform: translateY(0);
+}
 
 .btn-primary:disabled {
     opacity: 0.65;
@@ -276,7 +341,11 @@ input[type="password"]::-ms-clear { display: none; visibility: hidden; }
 }
 
 /* ── Google button container ─────────────────────────────── */
-.google-btn { width: 100%; display: flex; justify-content: center; }
+.google-btn {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
 
 /* ── Redirect row ────────────────────────────────────────── */
 .auth-redirect {
@@ -305,7 +374,9 @@ input[type="password"]::-ms-clear { display: none; visibility: hidden; }
     transition: color 0.15s ease;
 }
 
-.link-btn:hover { color: var(--text-accent); }
+.link-btn:hover {
+    color: var(--text-accent);
+}
 
 /* ── Toast ───────────────────────────────────────────────── */
 #toast {
@@ -323,7 +394,7 @@ input[type="password"]::-ms-clear { display: none; visibility: hidden; }
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     z-index: 200;
     opacity: 0;
     pointer-events: none;
@@ -336,22 +407,32 @@ input[type="password"]::-ms-clear { display: none; visibility: hidden; }
     transform: translateX(-50%) translateY(0);
 }
 
-#toast.toast-success { background: #065f46; }
-#toast.toast-error   { background: #b91c1c; }
+#toast.toast-success {
+    background: #065f46;
+}
+
+#toast.toast-error {
+    background: #b91c1c;
+}
 
 /* ── Utility ─────────────────────────────────────────────── */
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 480px) {
-    #auth-stage { padding: 1rem 0 0; align-items: flex-start; }
+    #auth-stage {
+        padding: 1rem 0 0;
+        align-items: flex-start;
+    }
 
     .auth-card {
         border-radius: var(--border-radius) var(--border-radius) 0 0;
         border-left: none;
         border-right: none;
         border-bottom: none;
-        box-shadow: 0 -4px 24px rgba(0,0,0,0.06);
+        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
         padding: 1.75rem 1.25rem 2.5rem;
         min-height: calc(100vh - 60px);
     }
