@@ -297,7 +297,7 @@ function setLoading(btn, loading, label) {
 }
 
 // ── Google Sign-In ────────────────────────────────────────
-window.initGoogle = function () {
+function initGoogleSignIn() {
     google.accounts.id.initialize({
         client_id: "199267957188-n80vs33jfckqmedocojl71sk5tk8m6ud.apps.googleusercontent.com",
         callback: handleGoogleCredential,
@@ -305,6 +305,14 @@ window.initGoogle = function () {
     });
     renderGoogleButtons();
 };
+
+// wait until google script is loaded before initializing button
+if (typeof google !== "undefined" && google.accounts?.id) {
+    initGoogleSignIn();
+} else {
+    const gsiScript = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
+    if (gsiScript) gsiScript.addEventListener("load", initGoogleSignIn);
+}
 
 let resizeTimer;
 window.addEventListener("resize", () => {
@@ -371,5 +379,3 @@ function decodeJWT(token) {
         atob(payload).split("").map(c => "%" + c.charCodeAt(0).toString(16).padStart(2, "0")).join("")
     ));
 }
-
-window.initGoogle();

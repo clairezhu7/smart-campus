@@ -133,8 +133,6 @@ async function render() {
         document.getElementById("delete-btn").addEventListener("click", handleDelete);
 
     } else {
-        // Buyer: Save + Message Seller — that's it.
-        // All buying happens inside the chat conversation.
         const favRef  = doc(database, "users", ME.uid, "favourites", listingId);
         const favSnap = await getDoc(favRef);
         isFaved       = favSnap.exists();
