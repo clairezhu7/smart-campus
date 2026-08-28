@@ -42,21 +42,23 @@ body {
 
 /* Shared top bar identical to home / profile */
 #auth-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 1rem 1.5rem;
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: saturate(180%) blur(12px);
     -webkit-backdrop-filter: saturate(180%) blur(12px);
     border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 50;
 }
 
 #brand {
     font-weight: 700; 
     font-size: 1.8rem;
+    line-height: 1.6;
     text-decoration: none;
     background: linear-gradient(135deg, var(--primary-color), var(--text-accent));
     -webkit-background-clip: text;

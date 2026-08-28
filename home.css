@@ -57,6 +57,7 @@ input {
 #brand {
     font-weight: 700;
     font-size: 1.8rem;
+    line-height: 1.6;
     background: linear-gradient(135deg, var(--primary-color), var(--text-accent));
     -webkit-background-clip: text;
     background-clip: text;

@@ -109,12 +109,12 @@ button {
     backdrop-filter: saturate(180%) blur(12px);
     -webkit-backdrop-filter: saturate(180%) blur(12px);
     border-bottom: 1px solid var(--border-color);
-    animation: fadeIn 0.4s ease forwards;
 }
 
 #brand {
     font-weight: 700;
     font-size: 1.8rem;
+    line-height: 1.6;
     background: linear-gradient(135deg, var(--primary-color), var(--text-accent));
     -webkit-background-clip: text;
     background-clip: text;
@@ -129,7 +129,7 @@ button {
 }
 
 .nav-actions button {
-    font-size: clamp(1rem, 2.5vmin, 1.5rem);
+    font-size: clamp(1rem, 2.3vmin, 1.5rem);
     font-weight: 600;
     padding: 0.75rem 1.7rem;
     border-radius: 999px;
@@ -451,7 +451,6 @@ button {
     display: none;
 }
 
-/* ── HOW IT WORKS ────────────────────────────────────────────── */
 .how-card {
     background: #fff;
     border: 1px solid var(--border-color);

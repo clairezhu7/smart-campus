@@ -1183,18 +1183,15 @@
     gap: 0.5rem;
 }
 
-/* ── Active nav icon ─────────────────────────────────────── */
 .active-icon {
     background: #eef2ff !important;
     color: var(--primary-color) !important;
 }
 
-/* ── Topbar brand as link ─────────────────────────────────── */
 #brand {
     text-decoration: none;
 }
 
-/* ── Responsive ──────────────────────────────────────────── */
 
 /*
  * Tablet (≤ 768px): sidebar collapses to a compact horizontal strip
