@@ -57,7 +57,7 @@ input {
 #brand {
     font-weight: 700;
     font-size: 1.8rem;
-    line-height: 1.6;
+    line-height: 1.65;
     background: linear-gradient(135deg, var(--primary-color), var(--text-accent));
     -webkit-background-clip: text;
     background-clip: text;
@@ -75,7 +75,7 @@ input {
 
 #search-input {
     width: 100%;
-    padding: 0.6rem 1rem 0.6rem 3.2rem;
+    padding: 0.5rem 1rem 0.5rem 3.2rem;
     border: 1.5px solid var(--border-color);
     border-radius: var(--border-radius);
     font-size: 1.3rem;
