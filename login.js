@@ -5,7 +5,7 @@ import {
     GoogleAuthProvider,
     signInWithCredential
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
-import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+import { doc, setDoc, getDoc, increment } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const signUpCard      = document.getElementById("sign-up");
 const loginCard       = document.getElementById("login");
@@ -39,6 +39,16 @@ const completeProfileBtn      = document.getElementById("complete-profile-btn");
 const toastEl   = document.getElementById("toast");
 const toastIcon = document.getElementById("toast-icon");
 const toastMsg  = document.getElementById("toast-msg");
+
+// ── Public stats counter (landing page) ────────────────────
+// Best-effort vanity counter — never trust this for anything security-sensitive.
+async function bumpStudentCount(delta) {
+    try {
+        await setDoc(doc(database, "stats", "public"), { students: increment(delta) }, { merge: true });
+    } catch (err) {
+        console.warn("Couldn't update public stats:", err);
+    }
+}
 
 function showToast(msg, type = "success") {
     toastEl.className = `show toast-${type}`;
@@ -111,6 +121,7 @@ signUpForm.addEventListener("submit", async e => {
             name, email, school,
             dateCreated: new Date().toISOString()
         });
+        bumpStudentCount(1);
         showToast("Account created! Welcome to Smart Campus 🎉");
         setTimeout(() => window.location.href = "home.html", 1000);
     } catch (err) {
@@ -281,6 +292,7 @@ completeProfileForm.addEventListener("submit", async e => {
             school,
             dateCreated: new Date().toISOString()
         });
+        bumpStudentCount(1);
         showToast("Account created! Welcome to Smart Campus 🎉");
         setTimeout(() => window.location.href = "home.html", 1000);
     } catch (err) {

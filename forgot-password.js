@@ -4,6 +4,11 @@ import {
     confirmPasswordReset
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
+const actionCodeSettings = {
+    url: `${window.location.origin}/login.html#login`,
+    handleCodeInApp: false
+};
+
 // ── DOM ───────────────────────────────────────────────────
 const forgotPanel    = document.getElementById("forgot-password");
 const resetPanel     = document.getElementById("password-reset");
@@ -80,9 +85,7 @@ forgotForm.addEventListener("submit", async e => {
     forgotBtn.textContent = "Sending…";
 
     try {
-        await sendPasswordResetEmail(authentication, email, {
-            url: "https://smart-campus-2b726.web.app/action.html"
-        });
+        await sendPasswordResetEmail(authentication, email, actionCodeSettings);
         showToast("Reset link sent! Check your inbox.");
         forgotBtn.textContent = "Email Sent ✓";
     } catch (err) {

@@ -245,7 +245,7 @@ button {
     border: none;
     padding: clamp(1rem, 2.5vh, 2rem) clamp(2rem, 3vw, 4rem);
     border-radius: var(--border-radius);
-    font-size: clamp(1.5rem, 4.5vmin, 4rem);
+    font-size: clamp(1.5rem, 5vmin, 4rem);
     font-weight: 700;
     box-shadow: 0 4px 18px rgba(79, 70, 229, 0.32);
     transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;

@@ -1,7 +1,7 @@
 import { database, authentication } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import {
-    doc, getDoc, updateDoc, runTransaction, serverTimestamp
+    doc, getDoc, updateDoc, runTransaction, serverTimestamp, increment
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 // ── DOM ───────────────────────────────────────────────────
@@ -83,6 +83,8 @@ async function init() {
             myCode = await getOrCreateCode();
             codeDisplay.textContent = myCode;
             codeCard.classList.remove("hidden");
+            setupCopyBtn();
+            setupEmailBtn();
         } else if (isSeller) {
             verifyCard.classList.remove("hidden");
             setupVerifyBtn();
@@ -196,6 +198,7 @@ async function releaseEscrow() {
         await runTransaction(database, async tx => {
             const listingRef = doc(database, "listings", listingId);
             const sellerRef  = doc(database, "users", listing.sellerId);
+            const statsRef   = doc(database, "stats", "public");
 
             const [listingSnap, sellerSnap] = await Promise.all([
                 tx.get(listingRef),
@@ -209,8 +212,9 @@ async function releaseEscrow() {
             const sellerBalance = sellerSnap.data()?.walletBalance ?? 0;
             const newStatus     = listing.category === "rent" ? "rented" : "sold";
 
-            tx.update(listingRef, { status: newStatus, completedAt: serverTimestamp() });
+            tx.update(listingRef, { status: newStatus, sold: true, completedAt: serverTimestamp() });
             tx.update(sellerRef,  { walletBalance: sellerBalance + escrowAmt });
+            tx.set(statsRef, { sold: increment(1) }, { merge: true });
         });
 
         showCompleted(true);

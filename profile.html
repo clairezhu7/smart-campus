@@ -109,11 +109,12 @@
                             <div class="field-display" id="display-name"></div>
                             <input class="field-input hidden" id="input-name" type="text" placeholder="Your full name">
                         </div>
-                        <div class="field-row">
+                        <div class="field-row" style="position:relative;">
                             <label>School</label>
                             <div class="field-display" id="display-school"></div>
                             <input class="field-input hidden" id="input-school" type="text"
-                                placeholder="The name of your school">
+                                placeholder="The name of your school" autocomplete="off">
+                            <div id="profile-schools-list" class="hidden"></div>
                         </div>
                     </div>
 
@@ -249,7 +250,6 @@
                 <div class="sub-tabs" id="listings-sub-tabs">
                     <button class="sub-tab active status-active" data-filter="active">Active</button>
                     <button class="sub-tab status-sold" data-filter="sold">Sold</button>
-                    <button class="sub-tab status-expired" data-filter="expired">Expired</button>
                 </div>
 
                 <div id="listings-grid" class="items-grid"></div>

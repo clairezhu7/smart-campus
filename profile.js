@@ -1,8 +1,3 @@
-/* ─────────────────────────────────────────────────────────
-   profile.js  — Profile page
-   Firebase Auth + Firestore + Storage
-   ───────────────────────────────────────────────────────── */
-
 import { database, authentication } from "./firebase-config.js";
 import {
     onAuthStateChanged, signOut,
@@ -10,13 +5,9 @@ import {
     reauthenticateWithCredential, verifyBeforeUpdateEmail
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import {
-    doc, getDoc, updateDoc,
+    doc, getDoc, updateDoc, setDoc, increment,
     collection, query, where, getDocs, deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
-
-// ─────────────────────────────────────────────────────────
-// DOM REFERENCES
-// ─────────────────────────────────────────────────────────
 
 // — Sidebar / avatar
 const avatarRing          = document.getElementById("avatar-ring");
@@ -39,6 +30,7 @@ const displayName         = document.getElementById("display-name");
 const displaySchool       = document.getElementById("display-school");
 const inputName           = document.getElementById("input-name");
 const inputSchool         = document.getElementById("input-school");
+const profileSchoolsList  = document.getElementById("profile-schools-list");
 const infoCancelBtn       = document.getElementById("info-cancel");
 const infoSaveBtn         = document.getElementById("info-save");
 
@@ -143,6 +135,8 @@ function initPage() {
     wireTabNav();
     wireAvatar();
     wireInfoEdit();
+    wireSchoolAutocomplete();
+    loadOntarioSchools();
     wireEmailEdit();
     wirePwdEdit();
     wireDeleteAccount();
@@ -303,6 +297,53 @@ function populateProfileFields() {
     inputName.value           = ME.name;
     inputSchool.value         = ME.school;
     currentEmailDisplay.textContent = ME.email;
+}
+
+// ─────────────────────────────────────────────────────────
+// PROFILE TAB — School autocomplete (same source list as sign-up)
+// ─────────────────────────────────────────────────────────
+
+let allSchools = [];
+
+async function loadOntarioSchools() {
+    try {
+        const res = await fetch("ontario-public-schools.json");
+        const data = await res.json();
+        allSchools = data.records.map(r => r[7]);
+    } catch (err) {
+        console.error("Couldn't load schools list:", err);
+    }
+}
+
+function wireSchoolAutocomplete() {
+    inputSchool.addEventListener("focus", () => filterProfileSchools(inputSchool.value));
+    inputSchool.addEventListener("input", () => filterProfileSchools(inputSchool.value));
+    inputSchool.addEventListener("blur", () => {
+        setTimeout(() => profileSchoolsList.classList.add("hidden"), 200);
+    });
+}
+
+function filterProfileSchools(value) {
+    const q = value.toLowerCase().trim();
+    const matches = allSchools.filter(s => s.toLowerCase().includes(q)).slice(0, 20);
+    if (!q || matches.length === 0) {
+        profileSchoolsList.classList.add("hidden");
+        profileSchoolsList.innerHTML = "";
+        return;
+    }
+    profileSchoolsList.innerHTML = matches.map(name => {
+        const div = document.createElement("div");
+        div.className = "profile-school-option";
+        div.textContent = name;
+        return div.outerHTML;
+    }).join("");
+    profileSchoolsList.classList.remove("hidden");
+    profileSchoolsList.querySelectorAll(".profile-school-option").forEach((el, i) => {
+        el.addEventListener("mousedown", () => {
+            inputSchool.value = matches[i];
+            profileSchoolsList.classList.add("hidden");
+        });
+    });
 }
 
 function wireInfoEdit() {
@@ -573,6 +614,8 @@ function wireDeleteAccount() {
             async () => {
                 try {
                     await deleteDoc(doc(database, "users", ME.uid));
+                    await setDoc(doc(database, "stats", "public"), { students: increment(-1) }, { merge: true })
+                        .catch(err => console.warn("Couldn't update public stats:", err));
                     await authentication.currentUser.delete();
                     showToast("Account deleted. Redirecting…", "error");
                     setTimeout(() => window.location.href = "index.html", 2000);
@@ -626,20 +669,18 @@ function wireListingsSubTabs() {
 
 function applyListingsFilter() {
     const items = myListings.filter(l => {
-        if (listingsFilter === "active")  return !l.sold && !l.expired;
-        if (listingsFilter === "sold")    return !!l.sold;
-        if (listingsFilter === "expired") return !!l.expired;
+        if (listingsFilter === "active") return !l.sold;
+        if (listingsFilter === "sold")   return !!l.sold;
         return true;
     });
 
-    listingsCountBadge.textContent = myListings.filter(l => !l.sold && !l.expired).length;
+    listingsCountBadge.textContent = myListings.filter(l => !l.sold).length;
     syncMobileBadge("mobile-listings-count", listingsCountBadge.textContent);
 
     if (items.length === 0) {
         const msgs = {
-            active:  ["📦", "No active listings",  "Items you post will appear here."],
-            sold:    ["🏷️", "No sold items yet",    "Completed sales will appear here."],
-            expired: ["⏰", "No expired listings",  "Listings past their end date appear here."],
+            active: ["📦", "No active listings",  "Items you post will appear here."],
+            sold:   ["🏷️", "No sold items yet",    "Completed sales will appear here."],
         };
         const [emoji, msg, sub] = msgs[listingsFilter] ?? ["📦", "Nothing here", ""];
         listingsGrid.innerHTML = `<div class="empty-state">
@@ -651,7 +692,7 @@ function applyListingsFilter() {
     }
 
     listingsGrid.innerHTML = items.map(item => {
-        const status  = item.sold ? "sold" : item.expired ? "expired" : "active";
+        const status  = item.sold ? "sold" : "active";
         const imgHTML = item.images?.[0]
             ? `<img src="${escapeAttr(item.images[0])}" alt="" loading="lazy"
                    onerror="this.parentElement.innerHTML='<i class=\\'fa-regular fa-image\\'></i>'">`
@@ -690,6 +731,10 @@ function applyListingsFilter() {
             showConfirm(`Remove ${label}?`, "This listing will be permanently deleted.", async () => {
                 try {
                     await deleteDoc(doc(database, "listings", id));
+                    setDoc(doc(database, "stats", "public"), {
+                        listings: increment(-1),
+                        ...(item?.sold ? { sold: increment(-1) } : {})
+                    }, { merge: true }).catch(err => console.warn("Couldn't update public stats:", err));
                     myListings = myListings.filter(l => l.id !== id);
                     applyListingsFilter();
                     showToast("Listing removed.");
@@ -754,7 +799,7 @@ async function renderFavourites() {
             <div class="listing-card-body" style="cursor:pointer"
                  onclick="window.location.href='listing.html?id=${target}'">
                 <div class="listing-card-title">${escapeHtml(item.title ?? "Untitled")}</div>
-                <div class="listing-card-price">${item.category === "exchange" ? "Exchange" : (item.price != null ? `$${item.price}` : "—")}</div>
+                <div class="listing-card-price">${item.category === "exchange" ? "Exchange" : (item.price != null ? `$${Number(item.price).toFixed(2)}` : "—")}</div>
                 <div class="listing-card-meta">
                     <span>by ${escapeHtml(item.sellerName ?? "Unknown")}</span>
                 </div>

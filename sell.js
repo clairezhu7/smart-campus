@@ -3,7 +3,7 @@ import {
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import {
-    collection, addDoc, serverTimestamp, doc, getDoc, updateDoc
+    collection, addDoc, serverTimestamp, doc, getDoc, updateDoc, setDoc, increment
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 // ── DOM ──────────────────────────────────────────────────
@@ -313,8 +313,11 @@ form.addEventListener("submit", async e => {
             sellerEmail: ME.email,
             sellerSchool: ME.school,
             views: 0,
+            sold: false,
             postedAt: serverTimestamp()
         });
+        setDoc(doc(database, "stats", "public"), { listings: increment(1) }, { merge: true })
+            .catch(err => console.warn("Couldn't update public stats:", err));
         window.location.href = "home.html";
     } catch (err) {
         console.error("Publish failed:", err);
@@ -336,4 +339,4 @@ backBtn.addEventListener("click", () => {
     } else {
         window.location.href = "home.html";
     }
-})    
+})

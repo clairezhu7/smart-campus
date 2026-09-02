@@ -4,7 +4,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import {
     collection, query, where, orderBy, onSnapshot,
-    addDoc, serverTimestamp, doc, getDoc, deleteDoc
+    addDoc, serverTimestamp, doc, getDoc, deleteDoc, setDoc, increment
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 // ── DOM ──────────────────────────────────────────────────
@@ -507,6 +507,8 @@ grid.addEventListener("click", async e => {
         deleteEl.disabled = true;
         try {
             await deleteDoc(doc(database, "listings", id));
+            setDoc(doc(database, "stats", "public"), { listings: increment(-1) }, { merge: true })
+                .catch(err => console.warn("Couldn't update public stats:", err));
         } catch (err) {
             console.error("Delete failed:", err);
             alert("Couldn't delete the listing. " + (err.message ?? ""));

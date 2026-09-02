@@ -730,7 +730,7 @@
 }
 
 .listing-card-img {
-    aspect-ratio: 4/3;
+    aspect-ratio: 7/6;
     background: var(--background-color);
     display: flex;
     align-items: center;
@@ -738,6 +738,7 @@
     color: var(--text-prompt);
     font-size: 2rem;
     position: relative;
+    overflow: hidden;
 }
 
 .listing-card-img img {
@@ -774,11 +775,6 @@
 /* Deep, premium slate/royal blue */
 .status-sold {
     background: #377ae5;
-}
-
-/* Warm, rich terracotta orange */
-.status-expired {
-    background: rgb(221, 110, 30);
 }
 
 .status-generic {
@@ -856,6 +852,19 @@
 .fav-card {
     position: relative;
 }
+
+/* .listing-status-badge {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    padding: 0.25rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+} */
 
 .fav-remove-btn {
     position: absolute;
@@ -1437,4 +1446,32 @@
     .items-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     }
+}
+/* School autocomplete dropdown (matches login.css #schools-list) */
+#profile-schools-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 100;
+    margin-top: 0.3rem;
+}
+
+.profile-school-option {
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    color: var(--text-main, #1e293b);
+    transition: background 0.1s ease;
+}
+
+.profile-school-option:hover {
+    background: var(--background-color);
 }

@@ -2,7 +2,7 @@ import { database, authentication } from "./firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 import {
     collection, addDoc, onSnapshot, query, where, orderBy,
-    serverTimestamp, doc, setDoc, getDocs, getDoc, updateDoc
+    serverTimestamp, doc, setDoc, getDoc, updateDoc
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
 const convList      = document.getElementById("conv-list");
@@ -15,10 +15,6 @@ const msgForm       = document.getElementById("msg-form");
 const msgInput      = document.getElementById("msg-input");
 const backBtn       = document.getElementById("back-btn");
 const sidebar       = document.getElementById("sidebar");
-const newChatBtn    = document.getElementById("new-chat-btn");
-const modal         = document.getElementById("new-chat-modal");
-const modalClose    = document.getElementById("modal-close");
-const userList      = document.getElementById("user-list");
 const txnBanner     = document.getElementById("transaction-banner");
 const txnImgWrap    = document.getElementById("txn-img-wrap");
 const txnTitleEl    = document.getElementById("txn-title");
@@ -34,6 +30,54 @@ let stopListening    = null;
 let returnListingId  = null;
 let pendingConfirmLId = null;
 let otherUidInConv   = null;
+
+const listingTitleCache = new Map(); // listingId -> title
+const userPhotoCache    = new Map(); // uid -> photoURL | null
+
+async function getListingTitle(listingId) {
+    if (listingTitleCache.has(listingId)) return listingTitleCache.get(listingId);
+    try {
+        const snap  = await getDoc(doc(database, "listings", listingId));
+        const title = snap.exists() ? (snap.data().title ?? null) : null;
+        listingTitleCache.set(listingId, title);
+        return title;
+    } catch {
+        return null;
+    }
+}
+
+async function getUserPhoto(uid) {
+    if (userPhotoCache.has(uid)) return userPhotoCache.get(uid);
+    try {
+        const snap  = await getDoc(doc(database, "users", uid));
+        const photo = snap.exists() ? (snap.data().photoURL || null) : null;
+        userPhotoCache.set(uid, photo);
+        return photo;
+    } catch {
+        return null;
+    }
+}
+
+// Shows a profile photo if we have one, otherwise falls back to initials —
+// same pattern profile.js uses for its own avatar.
+function renderAvatar(el, name, photoURL) {
+    if (photoURL) {
+        el.style.backgroundImage = `url('${photoURL}')`;
+        el.style.backgroundSize = "cover";
+        el.style.backgroundPosition = "center";
+        el.style.backgroundRepeat = "no-repeat";
+        el.textContent = "";
+    } else {
+        el.style.backgroundImage = "";
+        el.textContent = initials(name);
+    }
+}
+
+function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+    );
+}
 
 onAuthStateChanged(authentication, async user => {
     if (!user) { window.location.href = "login.html#login"; return; }
@@ -80,13 +124,26 @@ function loadConversations() {
             const li        = document.createElement("li");
             li.className    = "conv-item" + (d.id === activeConvId ? " active" : "");
             li.innerHTML    = `
-                <div class="conv-avatar">${initials(otherName)}</div>
+                <div class="conv-avatar"></div>
                 <div class="conv-text">
-                    <div class="conv-name">${otherName}</div>
-                    <div class="conv-preview">${data.lastMessage || "No messages yet"}</div>
+                    <div class="conv-name">${escapeHtml(otherName)}</div>
+                    <div class="conv-listing"></div>
+                    <div class="conv-preview">${escapeHtml(data.lastMessage) || "No messages yet"}</div>
                 </div>`;
             li.onclick = () => openConv(d.id, otherName, otherId);
             convList.appendChild(li);
+
+            const avatarEl = li.querySelector(".conv-avatar");
+            renderAvatar(avatarEl, otherName, null);
+            getUserPhoto(otherId).then(photo => renderAvatar(avatarEl, otherName, photo));
+
+            const listingId = data.listingRef?.id;
+            if (listingId) {
+                const listingEl = li.querySelector(".conv-listing");
+                getListingTitle(listingId).then(title => {
+                    if (title) listingEl.textContent = `Re: ${title}`;
+                });
+            }
         });
     });
 }
@@ -96,14 +153,19 @@ async function openConv(convId, name, otherId) {
     activeConvId   = convId;
     otherUidInConv = otherId;
     chatName.textContent   = name;
-    chatAvatar.textContent = initials(name);
+    renderAvatar(chatAvatar, name, null);
     if (returnListingId) backBtn.classList.add("show");
     emptyState.classList.add("hidden");
     chatView.classList.remove("hidden");
     if (window.innerWidth <= 640) sidebar.classList.add("hidden");
     txnBanner.classList.add("hidden");
 
-    const convSnap   = await getDoc(doc(database, "conversations", convId));
+    const [convSnap, otherPhoto] = await Promise.all([
+        getDoc(doc(database, "conversations", convId)),
+        getUserPhoto(otherId)
+    ]);
+    renderAvatar(chatAvatar, name, otherPhoto);
+
     const listingRef = convSnap.data()?.listingRef;
     if (listingRef?.id) {
         onSnapshot(doc(database, "listings", listingRef.id), snap => {
@@ -121,8 +183,8 @@ async function openConv(convId, name, otherId) {
             row.className = "msg-row " + (isMine ? "sent" : "received");
             if (!isMine) {
                 const av = document.createElement("div");
-                av.className   = "msg-avatar";
-                av.textContent = initials(name);
+                av.className = "msg-avatar";
+                renderAvatar(av, name, otherPhoto);
                 row.appendChild(av);
             }
             const bubble = document.createElement("div");
@@ -261,50 +323,6 @@ backBtn.addEventListener("click", () => {
     emptyState.classList.remove("hidden");
     backBtn.classList.remove("show");
 });
-
-newChatBtn.addEventListener("click", async () => {
-    modal.classList.remove("hidden");
-    userList.innerHTML = `<li style="padding:1rem;color:var(--text-prompt);font-size:0.85rem;">Loading...</li>`;
-    const snapshot = await getDocs(collection(database, "users"));
-    const others   = snapshot.docs.filter(d => d.id !== ME.uid);
-    userList.innerHTML = "";
-    if (others.length === 0) {
-        userList.innerHTML = `<li style="padding:1rem;color:var(--text-prompt);font-size:0.85rem;">No other users found.</li>`;
-        return;
-    }
-    others.forEach(d => {
-        const data = d.data();
-        const li   = document.createElement("li");
-        li.className = "user-item";
-        li.innerHTML = `
-            <div class="user-avatar">${initials(data.name ?? data.email ?? "?")}</div>
-            <div>
-                <div class="user-name">${data.name ?? "Unknown"}</div>
-                <div class="user-school">${data.school ?? data.email ?? ""}</div>
-            </div>`;
-        li.onclick = () => startConv(d.id, data.name ?? data.email);
-        userList.appendChild(li);
-    });
-});
-
-modalClose.addEventListener("click", () => modal.classList.add("hidden"));
-modal.addEventListener("click", e => { if (e.target === modal) modal.classList.add("hidden"); });
-
-async function startConv(otherUid, otherName) {
-    modal.classList.add("hidden");
-    const snapshot = await getDocs(collection(database, "conversations"));
-    const existing = snapshot.docs.find(d => {
-        const p = d.data().participants ?? [];
-        return p.includes(ME.uid) && p.includes(otherUid);
-    });
-    if (existing) { openConv(existing.id, otherName, otherUid); return; }
-    const ref = await addDoc(collection(database, "conversations"), {
-        participants: [ME.uid, otherUid],
-        names: { [ME.uid]: ME.name, [otherUid]: otherName },
-        lastMessage: "",
-    });
-    openConv(ref.id, otherName, otherUid);
-}
 
 function initials(name) {
     if (!name) return "?";

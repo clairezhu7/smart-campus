@@ -133,11 +133,20 @@ async function render() {
         document.getElementById("delete-btn").addEventListener("click", handleDelete);
 
     } else {
-        const favRef  = doc(database, "users", ME.uid, "favourites", listingId);
-        const favSnap = await getDoc(favRef);
-        isFaved       = favSnap.exists();
+        const favRef = doc(database, "users", ME.uid, "favourites", listingId);
+        try {
+            const favSnap = await getDoc(favRef);
+            isFaved = favSnap.exists();
+        } catch (err) {
+            // Don't let a failed favourite-status check take down the whole
+            // action bar — buyers should still be able to message the
+            // seller even if this particular read fails.
+            console.error("Couldn't check favourite status:", err);
+            isFaved = false;
+        }
 
-        const isSoldToSomeoneElse = ["sold","rented"].includes(listing.status) ||
+        const isSoldToSomeoneElse = listing.sold ||
+            ["sold","rented"].includes(listing.status) ||
             (listing.status === "escrow" && listing.buyerId !== ME.uid);
 
         actionsEl.innerHTML = `
@@ -163,9 +172,6 @@ function setMainImage(src) {
         onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'placeholder',innerHTML:'<i class=\\'fa-regular fa-image\\'></i>'}))">`;
 }
 
-// ── Open chat with listing context ────────────────────────
-// The listing banner + buy button live inside the chat.
-// No status changes happen here — just open the conversation.
 async function openChat() {
     const btn = document.getElementById("msg-btn");
     btn.disabled    = true;
@@ -242,6 +248,7 @@ async function handleToggleFavourite() {
     finally { btn.disabled = false; }
 }
 
+// ── Mark as sold ──────────────────────────────────────────
 // ── Delete ────────────────────────────────────────────────
 async function handleDelete() {
     if (!confirm(`Delete "${listing.title}"? This cannot be undone.`)) return;
@@ -249,6 +256,10 @@ async function handleDelete() {
     btn.disabled = true; btn.textContent = "Deleting...";
     try {
         await deleteDoc(doc(database, "listings", listingId));
+        setDoc(doc(database, "stats", "public"), {
+            listings: increment(-1),
+            ...(listing.sold ? { sold: increment(-1) } : {})
+        }, { merge: true }).catch(err => console.warn("Couldn't update public stats:", err));
         window.location.href = "home.html";
     } catch (err) {
         alert("Couldn't delete: " + (err.message ?? ""));
